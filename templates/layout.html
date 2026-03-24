@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Crop Planner{% endblock %} | FarmLens AI</title>
+
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+
+    <!-- Page Specific CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <div class="app-wrapper">
+        <!-- Sidebar Navigation -->
+        {% if not hide_sidebar %}
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='images/farmlens-logo.svg') }}" alt="FarmLens AI Logo"
+                    class="brand-logo" style="height: 40px; width: auto; object-fit: contain;">
+                <div class="sidebar-brand-text">FarmLens AI</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}"
+                    class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('crop_recommend') }}"
+                    class="nav-item {% if request.endpoint == 'crop_recommend' %}active{% endif %}">
+                    <i class="fa-solid fa-seedling"></i>
+                    <span>Crop Advisor</span>
+                </a>
+                <a href="{{ url_for('disease_predict') }}"
+                    class="nav-item {% if request.endpoint == 'disease_predict' %}active{% endif %}">
+                    <i class="fa-solid fa-microscope"></i>
+                    <span>Disease Scan</span>
+                </a>
+                <a href="{{ url_for('history') }}"
+                    class="nav-item {% if request.endpoint == 'history' %}active{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>History</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer"
+                style="padding-top: 2rem; border-top: 1px solid var(--border-color); margin-top: auto;">
+                <a href="{{ url_for('profile') }}"
+                    class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Profile Settings</span>
+                </a>
+            </div>
+        </aside>
+        {% endif %}
+
+        <!-- Main Content Wrapper -->
+        <main class="main-content" style="{% if hide_sidebar %}margin-left: 0;{% endif %}">
+
+            <!-- Top Header -->
+            {% if not hide_sidebar %}
+            <header class="top-header">
+                <div class="header-search">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" placeholder="Search crops, diseases...">
+                </div>
+
+                <div class="header-user">
+                    <div class="header-icon">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="icon-badge"></span>
+                    </div>
+                    <div class="user-profile">
+                        <div class="user-info" style="text-align: right;">
+                            <span class="user-name">Riyaz</span>
+                            <span class="user-role">Smart Farmer</span>
+                        </div>
+                        <div class="user-avatar">R</div>
+                    </div>
+                </div>
+            </header>
+            {% endif %}
+
+            <!-- Dynamic Page Content -->
+            <div class="page-container">
+                {% block content %}
+                <!-- Content will be injected here -->
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

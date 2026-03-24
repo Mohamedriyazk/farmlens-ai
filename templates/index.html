@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card" style="text-align: center; padding: 4rem 2rem;">
+    <h1 style="color: var(--dark-green); font-size: 2.5rem; margin-bottom: 1rem;" data-i18n="hero_title">Smart Crop &
+        Disease AI</h1>
+    <p style="font-size: 1.2rem; color: var(--text-light); margin-bottom: 2rem;" data-i18n="hero_subtitle">Empowering
+        farmers with intelligent insights for better yields.</p>
+
+    <div>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('dashboard') }}" class="btn" data-i18n="nav_dashboard">Go to Dashboard</a>
+        {% else %}
+        <a href="{{ url_for('signup') }}" class="btn" style="margin-right: 1rem;" data-i18n="nav_signup">Join Us</a>
+        <a href="{{ url_for('login') }}" class="btn btn-outline" data-i18n="nav_login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dash-card">
+        <div class="dash-icon">🌾</div>
+        <h3 data-i18n="dash_crop">Crop Recommendation</h3>
+        <p>Get data-driven suggestions on what to plant based on your soil and climate.</p>
+    </div>
+    <div class="dash-card">
+        <div class="dash-icon">🍃</div>
+        <h3 data-i18n="dash_disease">Disease Prediction</h3>
+        <p>Upload photos of plant leaves to instantly detect diseases using AI.</p>
+    </div>
+</div>
+{% endblock %}

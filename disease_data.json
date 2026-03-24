@@ -1,0 +1,121 @@
+{
+    "Apple Scab": {
+        "name": "Apple Scab",
+        "description": "A fungal disease of apples that causes dark, scabby spots on the leaves and fruit.",
+        "treatment": "Prune infected leaves and apply a suitable fungicide.",
+        "medicine": "Captan, Myclobutanil, or Mancozeb based fungicides.",
+        "prevention": "Ensure good air circulation, rake and destroy fallen leaves."
+    },
+    "Tomato Early Blight": {
+        "name": "Tomato Early Blight",
+        "description": "Caused by the fungus Alternaria solani, resulting in dark, concentric ring spots on lower leaves.",
+        "treatment": "Remove affected leaves. Do not compost them.",
+        "medicine": "Copper-based fungicides or Chlorothalonil.",
+        "prevention": "Use drip irrigation, crop rotation, and appropriate plant spacing."
+    },
+    "Potato Late Blight": {
+        "name": "Potato Late Blight",
+        "description": "A devastating disease caused by Phytophthora infestans that rapidly destroys the foliage.",
+        "treatment": "Immediate application of protective or systemic fungicide. Destroy heavily infected plants.",
+        "medicine": "Mefenoxam, Chlorothalonil.",
+        "prevention": "Plant certified disease-free seed potatoes, destroy volunteer potatoes."
+    },
+    "Rice Leaf Blast": {
+        "name": "Rice Leaf Blast",
+        "description": "Caused by Magnaporthe oryzae, creating diamond-shaped lesions on leaves.",
+        "treatment": "Maintain proper flooding and apply systemic fungicides.",
+        "medicine": "Tricyclazole or Isoprothiolane.",
+        "prevention": "Avoid excessive nitrogen fertilizers and use continuous flooding."
+    },
+    "Corn Common Rust": {
+        "name": "Corn Common Rust",
+        "description": "Fungal disease characterized by oval, cinnamon-brown pustules on leaves.",
+        "treatment": "Fungicide application if severe before the silking stage.",
+        "medicine": "Pyraclostrobin or Propiconazole.",
+        "prevention": "Plant rust-resistant corn hybrids."
+    },
+    "Grape Black Rot": {
+        "name": "Grape Black Rot",
+        "description": "Fungus causing reddish-brown circular spots on leaves and rot on fruits.",
+        "treatment": "Remove infected mummies and prune for sunlight penetration.",
+        "medicine": "Mancozeb or Myclobutanil.",
+        "prevention": "Sanitation and dormant season pruning."
+    },
+    "Citrus Canker": {
+        "name": "Citrus Canker",
+        "description": "Bacterial disease causing raised, corky lesions on leaves, stems, and fruits.",
+        "treatment": "Use copper-based sprays to reduce the infection rate.",
+        "medicine": "Copper oxychloride or Copper sulfate.",
+        "prevention": "Windbreaks, clean tools, and disease-free nursery stock."
+    },
+    "Mango Anthracnose": {
+        "name": "Mango Anthracnose",
+        "description": "Fungal infection displaying dark irregular spots on leaves and blossoms.",
+        "treatment": "Prune dead branches to lower fungal load.",
+        "medicine": "Azoxystrobin or Carbendazim sprays.",
+        "prevention": "Post-harvest hot water treatment and proper orchard spacing."
+    },
+    "Banana Fusarium Wilt (Panama Disease)": {
+        "name": "Banana Fusarium Wilt (Panama Disease)",
+        "description": "A lethal systemic fungal disease causing yellowing of older leaves.",
+        "treatment": "No viable chemical treatment once infected. Immediate eradication.",
+        "medicine": "Soil sterilization techniques.",
+        "prevention": "Strict quarantine, disease-free tissue culture, clean tools."
+    },
+    "Tomato Yellow Leaf Curl": {
+        "name": "Tomato Yellow Leaf Curl",
+        "description": "A devastating viral disease spread by whiteflies causing stunted growth.",
+        "treatment": "Control whitefly populations to stop the spread.",
+        "medicine": "Imidacloprid or Neem-based bio-insecticides.",
+        "prevention": "Use insect-proof netting, weed control, and resistant varieties."
+    },
+    "Wheat Stripe Rust": {
+        "name": "Wheat Stripe Rust",
+        "description": "Fungal disease causing yellow streaks or blisters along leaf veins.",
+        "treatment": "Foliar fungicides applied at the flag leaf stage.",
+        "medicine": "Tebuconazole or Triadimefon.",
+        "prevention": "Grow resistant wheat cultivars and destroy volunteer wheat."
+    },
+    "Plant Septoria": {
+        "name": "Plant Septoria",
+        "description": "Septoria is a fungal disease that causes numerous distinctive brown spots on leaves, ultimately leading to foliage loss and reduced plant vigor.",
+        "treatment": "Remove infected leaves immediately. Apply a copper-based or chemical fungicide every 7 to 10 days until harvest.",
+        "medicine": "Chlorothalonil, Copper Fungicide, or Mancozeb.",
+        "prevention": "Water at the base of the plant to keep leaves dry. Practice crop rotation and ensure proper plant spacing for air circulation."
+    },
+    "Tomato Septoria": {
+        "name": "Tomato Septoria",
+        "description": "Septoria leaf spot is a very common destructive disease of tomato foliage. It causes numerous circular spots on leaves with dark margins and tan to gray centers.",
+        "treatment": "Remove affected basal foliage. Do not work among the plants when they are wet. Apply fungicidal sprays.",
+        "medicine": "Chlorothalonil or Copper Fungicide.",
+        "prevention": "Destroy tomato crop debris after harvest. Crop rotation is essential."
+    },
+    "Mildew": {
+        "name": "Mildew",
+        "description": "Powdery mildew is a fungal disease that affects a wide range of plants, appearing as white powdery spots on leaves and stems.",
+        "treatment": "Remove severely infected parts. Apply organic fungicides or sulfur-based sprays.",
+        "medicine": "Potassium bicarbonate, Sulfur powder, or Neem oil.",
+        "prevention": "Ensure good air circulation, avoid overhead watering, and expose to sufficient sunlight."
+    },
+    "Rust": {
+        "name": "Rust",
+        "description": "A common fungal disease causing orange, yellow, or brown rust-like pustules on the undersides of leaves.",
+        "treatment": "Hand-pick affected leaves and destroy them. Apply rust-specific fungicidal sprays early in the morning.",
+        "medicine": "Myclobutanil or Copper sprays.",
+        "prevention": "Avoid wetting the foliage. Ensure wide plant spacing to keep humidity down."
+    },
+    "Spot": {
+        "name": "Leaf Spot",
+        "description": "A common descriptive term applied to a number of diseases affecting the foliage of plants, caused by fungi or bacteria.",
+        "treatment": "Rake up and destroy fallen leaves. Treat with appropriate broad-spectrum fungicide.",
+        "medicine": "Broad-spectrum Fungicides (e.g., Chlorothalonil).",
+        "prevention": "Keep foliage dry, water from below, and ensure proper spacing."
+    },
+    "Healthy": {
+        "name": "Healthy",
+        "description": "No structural deformities found. The cell walls and foliage are intact. The plant is demonstrating optimal health and vigor.",
+        "treatment": "No treatment necessary. Continue with regular care.",
+        "medicine": "None required.",
+        "prevention": "Maintain optimal watering, balanced nutrient supply, and monitor regularly for pests."
+    }
+}

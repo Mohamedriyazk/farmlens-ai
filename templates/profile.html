@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-title" data-i18n="profile_title">Personalized Farm Profile</div>
+<div class="page-subtitle" data-i18n="profile_subtitle">Manage your geolocation and farm dimensions to enhance AI
+    precision tailoring.</div>
+
+<div class="glass-card" style="max-width: 600px; padding: 2rem;">
+
+    <form method="POST" action="{{ url_for('profile') }}">
+        <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border-color);">
+            <label class="form-label" style="display:block; margin-bottom:1rem; font-weight:700;">Select Profile Avatar</label>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                {% set avt = user.avatar or 'ph-user' %}
+                
+                <label style="cursor: pointer;" onclick="document.getElementById('current-avatar-preview').className = 'ph-user avatar-preview-icon'">
+                    <input type="radio" name="avatar" value="ph-user" style="display:none;" {% if avt == 'ph-user' %}checked{% endif %}>
+                    <div class="avatar-option" style="width: 60px; height: 60px; border-radius: 50%; background: var(--bg-color); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: var(--text-muted); border: 2px solid transparent; transition: all 0.2s;">
+                        <i class="ph-user"></i>
+                    </div>
+                </label>
+                
+                <label style="cursor: pointer;" onclick="document.getElementById('current-avatar-preview').className = 'ph-plant avatar-preview-icon'">
+                    <input type="radio" name="avatar" value="ph-plant" style="display:none;" {% if avt == 'ph-plant' %}checked{% endif %}>
+                    <div class="avatar-option" style="width: 60px; height: 60px; border-radius: 50%; background: #dcfce7; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #16a34a; border: 2px solid transparent; transition: all 0.2s;">
+                        <i class="ph-plant"></i>
+                    </div>
+                </label>
+
+                <label style="cursor: pointer;" onclick="document.getElementById('current-avatar-preview').className = 'ph-drop avatar-preview-icon'">
+                    <input type="radio" name="avatar" value="ph-drop" style="display:none;" {% if avt == 'ph-drop' %}checked{% endif %}>
+                    <div class="avatar-option" style="width: 60px; height: 60px; border-radius: 50%; background: #e0f2fe; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #0284c7; border: 2px solid transparent; transition: all 0.2s;">
+                        <i class="ph-drop"></i>
+                    </div>
+                </label>
+                
+                <label style="cursor: pointer;" onclick="document.getElementById('current-avatar-preview').className = 'ph-sun avatar-preview-icon'">
+                    <input type="radio" name="avatar" value="ph-sun" style="display:none;" {% if avt == 'ph-sun' %}checked{% endif %}>
+                    <div class="avatar-option" style="width: 60px; height: 60px; border-radius: 50%; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #d97706; border: 2px solid transparent; transition: all 0.2s;">
+                        <i class="ph-sun"></i>
+                    </div>
+                </label>
+                
+                <style>
+                    input[type="radio"]:checked + .avatar-option {
+                        border-color: var(--primary-color) !important;
+                        box-shadow: 0 0 0 3px var(--primary-light);
+                        transform: scale(1.1);
+                    }
+                    .avatar-preview-icon { transition: all 0.3s ease; }
+                </style>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+            <div style="width: 80px; height: 80px; background: var(--primary-color); border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: var(--shadow-sm);">
+                <i class="{{ avt }} avatar-preview-icon" id="current-avatar-preview"></i>
+            </div>
+            <div style="flex: 1;">
+                <div class="form-group" style="margin-bottom: 0.5rem;">
+                    <label class="form-label">Full Name</label>
+                    <input class="form-control" type="text" name="username" value="{{ user.username or '' }}" placeholder="Enter username here...">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input class="form-control" type="email" name="email" value="{{ user.email or '' }}" placeholder="farmer@example.com">
+        </div>
+
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" data-i18n="geo_coordinates">Geographical Coordinates (Auto-Fetch via GPS)</label>
+            <div style="display: flex; gap: 0.5rem;">
+                <input class="form-control" type="text" id="location-input" name="location"
+                    value="{{ user.location or '' }}" placeholder="Waiting for coordinates..."
+                    data-i18n="waiting_coords" readonly>
+                <button type="button" class="btn btn-outline" onclick="getLocation()" title="Get Current Location">
+                    <i class="ph-crosshair"></i> <span data-i18n="auto">Auto</span>
+                </button>
+            </div>
+            <small id="loc-status"
+                style="display: block; margin-top: 0.5rem; color: var(--text-muted); font-size: 0.75rem;"></small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" data-i18n="farm_area_size">Farm Area Size (Acres/Hectares)</label>
+            <input class="form-control" type="text" name="farm_size" value="{{ user.farm_size or '' }}"
+                placeholder="e.g. 10 Acres">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+            <i class="ph-floppy-disk"></i> <span data-i18n="save_config">Save Configuration</span>
+        </button>
+    </form>
+</div>
+
+<script>
+    function getLocation() {
+        const status = document.getElementById('loc-status');
+        const input = document.getElementById('location-input');
+
+        status.innerHTML = '<i class="ph-spinner"></i> Parsing satellite coordinates...';
+        status.style.color = "var(--primary-color)";
+
+        if (!navigator.geolocation) {
+            status.textContent = "Hardware Error: Geolocation not supported by this browser.";
+            status.style.color = "var(--danger)";
+        } else {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    input.value = `Latitude: ${lat.toFixed(4)}, Longitude: ${lng.toFixed(4)}`;
+                    status.innerHTML = '<i class="ph-check-circle"></i> Coordinates acquired securely.';
+                    status.style.color = "var(--accent-color)";
+                },
+                (err) => {
+                    status.innerHTML = '<i class="ph-warning"></i> Access Denied. Ensure permissions are granted.';
+                    status.style.color = "var(--danger)";
+                }
+            );
+        }
+    }
+</script>
+{% endblock %}

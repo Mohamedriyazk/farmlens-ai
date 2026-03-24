@@ -1,0 +1,831 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Premium Dashboard Background */
+    body {
+        background: linear-gradient(135deg, rgba(238, 248, 242, 0.9) 0%, rgba(224, 242, 246, 0.9) 100%),
+            url('https://images.unsplash.com/photo-1628102491629-778eb9fd5905?q=80&w=2070&auto=format&fit=crop') center/cover no-repeat !important;
+        background-attachment: fixed !important;
+    }
+
+    /* Override Wrapper Background */
+    .main-wrapper {
+        background: transparent !important;
+    }
+
+    /* Add slight glass effect to top sticky header */
+    .top-header {
+        background: rgba(255, 255, 255, 0.7) !important;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Enhanced Premium Glass Cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 8px 32px -8px rgba(11, 92, 57, 0.08) !important;
+        border-radius: 16px !important;
+        transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 16px 48px -12px rgba(11, 92, 57, 0.15) !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+    }
+
+    /* Improved Font Readability against Background */
+    .page-title {
+        color: var(--primary-color) !important;
+        text-shadow: 0 2px 4px rgba(255, 255, 255, 0.8);
+        font-weight: 800;
+        font-size: 2.2rem !important;
+        letter-spacing: -0.03em;
+        margin-bottom: 0.2rem !important;
+    }
+
+    .page-subtitle {
+        color: #2c3e50 !important;
+        font-weight: 500;
+        font-size: 1.1rem;
+        max-width: 800px;
+        text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9);
+        margin-bottom: 2.5rem !important;
+    }
+
+    /* Grid spacing enhancements */
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem !important;
+        margin-bottom: 2.5rem !important;
+    }
+
+    /* Stat Cards Specific */
+    .stat-card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1.5rem !important;
+        position: relative;
+        overflow: hidden;
+        min-height: 180px;
+        cursor: pointer;
+        transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        background: rgba(255, 255, 255, 0.85);
+    }
+
+    .stat-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-content {
+        width: 100%;
+    }
+
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4));
+        transform: skewX(-20deg) translateX(150%);
+        transition: transform 0.7s ease;
+    }
+
+    .stat-card:hover::after {
+        transform: skewX(-20deg) translateX(-150%);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.1);
+    }
+
+    .bg-gradient-blue {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+    }
+
+    .bg-gradient-orange {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+    }
+
+    .bg-gradient-green {
+        background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .bg-gradient-purple {
+        background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    }
+
+    .stat-header h4 {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin: 0;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+
+    .stat-content p,
+    .stat-content span.counter {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-main);
+        line-height: 1;
+        margin: 0;
+    }
+
+    /* Layout Grids */
+    .dashboard-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Table modifications */
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 1rem;
+    }
+
+    td {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    tbody tr {
+        transition: transform 0.2s ease, background 0.2s ease;
+        border-radius: 8px;
+    }
+
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.6);
+        transform: scale(1.01);
+    }
+
+    /* Crop Item */
+    .crop-item {
+        padding: 1.25rem;
+        border: 1px solid rgba(11, 92, 57, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: rgba(255, 255, 255, 0.5);
+        transition: all 0.3s ease;
+    }
+
+    .crop-item:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(11, 92, 57, 0.3);
+        box-shadow: 0 4px 12px rgba(11, 92, 57, 0.05);
+    }
+
+    .crop-item-icon {
+        font-size: 1.75rem;
+        background: linear-gradient(135deg, var(--primary-light), #ffffff);
+        color: var(--primary-color);
+        width: 54px;
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Staggered Entrance Animations */
+    .animate-up {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1) forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Modal Specific CSS */
+    .dashboard-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(5px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .dashboard-modal {
+        background: white;
+        width: 90%;
+        max-width: 500px;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        transform: translateY(30px) scale(0.95);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .dashboard-modal-overlay.active {
+        display: flex;
+        opacity: 1;
+    }
+
+    .dashboard-modal-overlay.active .dashboard-modal {
+        transform: translateY(0) scale(1);
+    }
+
+    .dashboard-modal-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--primary-light), #ffffff);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(11, 92, 57, 0.1);
+    }
+
+    .dashboard-modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .dashboard-modal-close {
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.6);
+        border: none;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--text-main);
+        transition: background 0.2s, transform 0.2s;
+    }
+
+    .dashboard-modal-close:hover {
+        background: white;
+        transform: scale(1.1);
+    }
+
+    .dashboard-modal-body {
+        padding: 2rem 1.5rem;
+        color: var(--text-main);
+        font-size: 1.05rem;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="page-title animate-up" style="animation-delay: 0.1s;" id="dash_welcome">
+    {% set uname = current_user.username.strip().split()[0] if current_user and current_user.username else '' %}
+    {% if uname %}
+        <span data-i18n="dash_welcome_prefix">Welcome Back, </span> {{ uname }}.
+    {% else %}
+        <span data-i18n="dash_welcome_fallback">Welcome to FarmLens AI.</span>
+    {% endif %}
+</div>
+<div class="page-subtitle animate-up" style="animation-delay: 0.2s;" data-i18n="dash_subtitle">Monitor your farm's
+    health, analyze soil data, and get instant disease diagnostics.</div>
+
+<div class="summary-grid">
+    <div class="glass-card stat-card animate-up" style="animation-delay: 0.3s;" onclick="openDashModal('weather')">
+        <div class="stat-header">
+            <div class="stat-icon bg-gradient-blue"><i class="ph-cloud-sun-fill"></i></div>
+            <h4 data-i18n="live_weather">Live Weather</h4>
+        </div>
+        <div class="stat-content" id="dash_weather_val">
+            <p style="font-size: 1.5rem;"><span data-i18n="fetching_data">Fetching...</span></p>
+        </div>
+        <div
+            style="position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.75rem; color: var(--primary-color); opacity: 0.8; display: flex; align-items: center; gap: 0.25rem;">
+            <span data-i18n="click_more_lbl">Click for details</span> <i class="ph-arrow-right"></i>
+        </div>
+    </div>
+    <div class="glass-card stat-card animate-up" style="animation-delay: 0.4s;" onclick="openDashModal('soil')">
+        <div class="stat-header">
+            <div class="stat-icon bg-gradient-orange"><i class="ph-drop-fill"></i></div>
+            <h4 data-i18n="soil_insights">Soil Insights</h4>
+        </div>
+        <div class="stat-content" id="dash_soil_val">
+            <p style="font-size: 1.5rem;"><span data-i18n="fetching_data">Fetching...</span></p>
+        </div>
+        <div
+            style="position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.75rem; color: #f59e0b; opacity: 0.8; display: flex; align-items: center; gap: 0.25rem;">
+            <span data-i18n="click_more_lbl">Click for details</span> <i class="ph-arrow-right"></i>
+        </div>
+    </div>
+    <div class="glass-card stat-card animate-up" style="animation-delay: 0.7s;" onclick="openDashModal('rain')">
+        <div class="stat-header">
+            <div class="stat-icon bg-gradient-orange" style="background: linear-gradient(135deg, #0ea5e9, #38bdf8);"><i
+                    class="ph-cloud-rain-fill"></i></div>
+            <h4 data-i18n="rain_forecast">Rain Forecast</h4>
+        </div>
+        <div class="stat-content" id="dash_rain_val">
+            <p style="font-size: 1.5rem;"><span data-i18n="fetching_data">Fetching...</span></p>
+        </div>
+        <div
+            style="position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.75rem; color: #0ea5e9; opacity: 0.8; display: flex; align-items: center; gap: 0.25rem;">
+            <span data-i18n="click_more_lbl">Click for details</span> <i class="ph-arrow-right"></i>
+        </div>
+    </div>
+    <div class="glass-card stat-card animate-up" style="animation-delay: 0.5s;" onclick="openDashModal('healthy')">
+        <div class="stat-header">
+            <div class="stat-icon bg-gradient-green"><i class="ph-leaf-fill"></i></div>
+            <h4 data-i18n="healthy_scans">Healthy Scans</h4>
+        </div>
+        <div class="stat-content">
+            <p style="margin-bottom: 0.5rem;"><span class="counter" data-target="{{ healthy_percentage }}">0</span>%</p>
+            <div
+                style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem;">
+                <span><span data-i18n="healthy_count_lbl">Total Healthy: </span><strong
+                        style="color: var(--text-main);">{{ healthy_scans }}</strong></span>
+                <span data-i18n="disease_free_lbl">Disease-free rate from AI</span>
+            </div>
+        </div>
+        <div
+            style="position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.75rem; color: #10b981; opacity: 0.8; display: flex; align-items: center; gap: 0.25rem;">
+            <span data-i18n="click_more_lbl">Click for details</span> <i class="ph-arrow-right"></i>
+        </div>
+    </div>
+    <div class="glass-card stat-card animate-up" style="animation-delay: 0.6s;" onclick="openDashModal('scans')">
+        <div class="stat-header">
+            <div class="stat-icon bg-gradient-purple"><i class="ph-activity-bold"></i></div>
+            <h4 data-i18n="total_scans_today">Total Scans</h4>
+        </div>
+        <div class="stat-content">
+            <p style="margin-bottom: 0.5rem;"><span class="counter" data-target="{{ total_scans }}">0</span></p>
+            <div
+                style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem;">
+                <span><span data-i18n="disease_count_lbl">Detected Diseases: </span><strong
+                        style="color: var(--text-main);">{{ disease_scans }}</strong></span>
+                <span data-i18n="scan_history_lbl">Lifetime scans recorded</span>
+            </div>
+        </div>
+        <div
+            style="position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.75rem; color: #8b5cf6; opacity: 0.8; display: flex; align-items: center; gap: 0.25rem;">
+            <span data-i18n="click_more_lbl">Click for details</span> <i class="ph-arrow-right"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Modal Overlay -->
+<div class="dashboard-modal-overlay" id="dashModalOverlay">
+    <div class="dashboard-modal" id="dashModal">
+        <div class="dashboard-modal-header">
+            <div class="dashboard-modal-title" id="dashModalTitle">
+                <i class="ph-info"></i> <span data-i18n="details_lbl">Detailed Insights</span>
+            </div>
+            <button class="dashboard-modal-close" onclick="closeDashModal()"><i class="ph-x"></i></button>
+        </div>
+        <div class="dashboard-modal-body" id="dashModalBody">
+            <!-- Dynamic Data Payload Injected Here -->
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-layout">
+    <!-- Recent Activity -->
+    <div class="glass-card animate-up" style="animation-delay: 0.7s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);" data-i18n="recent_disease_scans">
+                Recent Disease Scans</h3>
+            <a href="{{ url_for('history') }}"
+                style="color: var(--primary-color); text-decoration: none; font-size: 0.9rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 20px; background: var(--primary-light); transition: all 0.2s;"
+                onmouseover="this.style.background='#d1f0dd'" onmouseout="this.style.background='var(--primary-light)'"
+                data-i18n="view_all">View All</a>
+        </div>
+
+        {% if recent_diseases %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="padding-left: 1rem;" data-i18n="table_date">Date</th>
+                    <th data-i18n="table_result">Diagnosis Result</th>
+                    <th data-i18n="table_conf">AI Confidence</th>
+                    <th style="text-align: right; padding-right: 1rem;" data-i18n="table_status">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in recent_diseases %}
+                <tr>
+                    <td style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500; padding-left: 1rem;">{{
+                        d.date.split(' ')[0] }}</td>
+                    <td style="font-weight: 600; color: var(--text-main);">{{ d.predicted_disease }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; width: 120px;">
+                            <div
+                                style="height: 6px; width: 100%; background: rgba(0,0,0,0.05); border-radius: 99px; overflow: hidden;">
+                                <div
+                                    style="height: 100%; width: {{ d.confidence }}%; background: linear-gradient(90deg, var(--primary-color), var(--accent-color)); border-radius: 99px;">
+                                </div>
+                            </div>
+                            <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">{{ d.confidence
+                                }}%</span>
+                        </div>
+                    </td>
+                    <td style="text-align: right; padding-right: 1rem;">
+                        {% if 'Healthy' in d.predicted_disease %}
+                        <span class="badge badge-success" data-i18n="badge_safe">Safe</span>
+                        {% elif d.confidence < 50 %} <span class="badge badge-warning" data-i18n="badge_unsure">
+                            Unsure</span>
+                            {% else %}
+                            <span class="badge badge-danger" data-i18n="badge_detected">Detected</span>
+                            {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div
+            style="text-align: center; padding: 3rem; color: var(--text-muted); background: rgba(255,255,255,0.4); border-radius: 12px; border: 1px dashed rgba(0,0,0,0.1);">
+            <i class="ph-plant" style="font-size: 4rem; margin-bottom: 1rem; color: var(--primary-light);"></i>
+            <p style="font-weight: 500;" data-i18n="no_recent_scans">No recent scans to display.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recommendations -->
+    <div class="glass-card animate-up" style="animation-delay: 0.8s; display: flex; flex-direction: column;">
+        <div style="margin-bottom: 2rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-main);" data-i18n="crop_suggestions">AI
+                Crop Suggestions</h3>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 1.25rem; flex-grow: 1;">
+            {% if recent_crops %}
+            {% for c in recent_crops %}
+            {% set first_crop = c.recommended_crop.split(',')[0].strip().lower().replace(' ', '_') %}
+            <div class="crop-item">
+                <div class="crop-item-icon"
+                    style="padding: 0; overflow: hidden; background: transparent; box-shadow: none;">
+                    <img src="{{ url_for('static', filename='images/crops/' ~ first_crop ~ '.jpg') }}"
+                        alt="{{ first_crop }}"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px; border: 1px solid rgba(11, 92, 57, 0.1);"
+                        onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/default_crop.svg') }}';">
+                </div>
+                <div>
+                    <div style="font-weight: 700; color: var(--text-main); font-size: 1.1rem; margin-bottom: 0.2rem;">
+                        {% for crop_name in c.recommended_crop.split(',') %}
+                        {% set crop_key = 'crop_' ~ crop_name.strip().lower().replace(' ', '_') %}
+                        <span data-i18n="{{ crop_key }}">{{ crop_name.strip() }}</span>{% if not loop.last %}, {% endif
+                        %}
+                        {% endfor %}
+                    </div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;">
+                        <i class="ph-drop text-primary"></i> {{ c.soil_type }} • <i
+                            class="ph-thermometer text-primary"></i> {{ c.temperature }}°C
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div
+                style="text-align: center; color: var(--text-muted); padding: 2rem; background: rgba(255,255,255,0.4); border-radius: 12px;">
+                <p data-i18n="no_prior_recommendations">No prior recommendations.</p>
+            </div>
+            {% endif %}
+
+            <div style="margin-top: auto; padding-top: 1.5rem;">
+                <a href="{{ url_for('crop_recommendation') }}" class="btn btn-primary"
+                    style="width: 100%; display: flex; justify-content: center; align-items: center; gap: 0.5rem; font-weight: 600; padding: 1rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(11, 92, 57, 0.2);">
+                    <i class="ph-sparkle-fill"></i> <span data-i18n="new_analysis">New Analysis</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global data cache for dashboard modal interactions
+    window.dashData = null;
+
+    // Set for dynamic translation rendering script in dictionary.js
+    window.currentUserName = "{{ current_user.username.split()[0] }}";
+
+    // Dynamic Geolocation and API Integrations
+    document.addEventListener("DOMContentLoaded", () => {
+        let lat = localStorage.getItem('dash_lat');
+        let lon = localStorage.getItem('dash_lon');
+        let locRequested = localStorage.getItem('dash_loc_requested');
+
+        if (!locRequested && !lat && !lon) {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    localStorage.setItem('dash_loc_requested', 'true');
+                    updateDashboardWithWeather(position.coords.latitude, position.coords.longitude);
+                }, error => {
+                    localStorage.setItem('dash_loc_requested', 'true');
+                    console.log("Location denied. Showing default values.");
+                    setDefaultDashboard();
+                });
+            } else {
+                localStorage.setItem('dash_loc_requested', 'true');
+                setDefaultDashboard();
+            }
+        } else if (lat && lon) {
+            updateDashboardWithWeather(lat, lon);
+        } else {
+            setDefaultDashboard();
+        }
+
+        function updateDashboardWithWeather(latitude, longitude) {
+            localStorage.setItem('dash_lat', latitude);
+            localStorage.setItem('dash_lon', longitude);
+
+            fetch(`/api/weather?lat=${latitude}&lon=${longitude}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        window.dashData = data; // Cache for modal
+                        // Dynamically create translation spans for JSON data properties
+                        let w_key = data.description.toLowerCase();
+                        let desc_html = `<span data-i18n="weather_${w_key}">${data.description}</span>`;
+
+                        document.getElementById('dash_weather_val').innerHTML = `
+                            <p style="margin-bottom: 0.5rem; font-size: 1.5rem;">${data.temperature}°C <span style="font-size:0.9rem; color:var(--text-muted); font-weight:500;">(${desc_html})</span></p>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span><i class="ph-thermometer" style="vertical-align: middle;"></i> <span data-i18n="feels_like_lbl">Feels like:</span> <strong style="color:var(--text-main);">${data.feels_like}°C</strong></span>
+                                <span><i class="ph-drop text-primary" style="vertical-align: middle;"></i> <span data-i18n="humidity_lbl">Humidity:</span> <strong style="color:var(--text-main);">${data.humidity}%</strong></span>
+                                <span><i class="ph-wind text-primary" style="vertical-align: middle;"></i> <span data-i18n="wind_speed_lbl">Wind:</span> <strong style="color:var(--text-main);">${data.wind_speed} km/h</strong></span>
+                            </div>
+                        `;
+
+                        let s_key = data.soil_insight.toLowerCase().replace(' ', '_');
+                        let soil_insight_html = `<span data-i18n="soil_${s_key}">${data.soil_insight}</span>`;
+                        let soil_type_key = 'crop_' + data.soil_type.split(' ')[0].toLowerCase().replace(' ', '_'); // Gets e.g 'crop_loamy'
+
+                        document.getElementById('dash_soil_val').innerHTML = `
+                            <p style="margin-bottom: 0.5rem; font-size:1.4rem;">${soil_insight_html}</p>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span><i class="ph-mountains" style="vertical-align: middle;"></i> <span data-i18n="est_soil_lbl">Est. Soil:</span> <strong style="color:var(--text-main);" data-i18n="${soil_type_key}">${data.soil_type}</strong></span>
+                                <span><i class="ph-flask" style="vertical-align: middle;"></i> <span data-i18n="ph_range_lbl">pH Range:</span> <strong style="color:var(--text-main);">${data.ph_range}</strong></span>
+                                <span data-i18n="soil_desc_lbl" style="font-size:0.8rem; margin-top:0.25rem; font-style:italic;">Estimated profile based on regional location.</span>
+                            </div>
+                        `;
+
+                        let rain_status = "No rain expected";
+                        let rain_status_key = "rain_none";
+                        if (data.rain_chance > 50) { rain_status = "Rain expected"; rain_status_key = "rain_expected"; }
+                        else if (data.rain_chance > 15) { rain_status = "Slight chance of rain"; rain_status_key = "rain_slight"; }
+
+                        let rain_horizon = data.forecast_time === 'today' ? "later today" : "tomorrow";
+                        let rain_horizon_key = data.forecast_time === 'today' ? "horizon_today" : "horizon_tomorrow";
+
+                        document.getElementById('dash_rain_val').innerHTML = `
+                            <p style="margin-bottom: 0.5rem; font-size:1.8rem;">${data.rain_chance}% <span style="font-size:0.85rem; color:var(--text-muted); font-weight:500;" data-i18n="rain_chance_lbl">Chance</span></p>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.25rem;">
+                                <span><i class="ph-clock text-primary" style="vertical-align: middle;"></i> <span data-i18n="${rain_status_key}">${rain_status}</span> <strong style="color:var(--text-main);" data-i18n="${rain_horizon_key}">${rain_horizon}</strong></span>
+                                <span><i class="ph-cloud-snow text-primary" style="vertical-align: middle;"></i> <span data-i18n="expected_rain_lbl">Expected Amount:</span> <strong style="color:var(--text-main);">${data.rain_amount} mm</strong></span>
+                                <span data-i18n="rain_desc_lbl" style="font-size:0.8rem; margin-top:0.25rem; font-style:italic;">Based on maximum daily precipitation forecast.</span>
+                            </div>
+                        `;
+
+                        // Force a re-translation if the dictionary engine is active
+                        if (typeof applyTranslations === 'function') {
+                            applyTranslations();
+                        }
+                    } else {
+                        setDefaultDashboard();
+                    }
+                })
+                .catch(e => setDefaultDashboard());
+        }
+
+        function setDefaultDashboard() {
+            window.dashData = {
+                city_name: "Mock Location (Offline)",
+                temperature: 28.0,
+                feels_like: 30.5,
+                humidity: 65,
+                wind_speed: 12.0,
+                description: "Clear",
+                soil_insight: "Optimal Moisture",
+                soil_type: "Loamy",
+                ph_range: "6.5 - 7.0",
+                rain_chance: 0,
+                rain_amount: 0.0,
+                forecast_time: "today"
+            };
+
+            document.getElementById('dash_weather_val').innerHTML = '<span data-i18n="weather_val">28°C, Clear</span>';
+            document.getElementById('dash_soil_val').innerHTML = '<span data-i18n="soil_val">Optimal Moisture</span>';
+            document.getElementById('dash_rain_val').innerHTML = '<span data-i18n="no_rain_data">No local data</span>';
+            if (typeof applyTranslations === 'function') { applyTranslations(); }
+        }
+
+        // Animated Counters for Stats
+        const counters = document.querySelectorAll('.counter');
+        const speed = 200;
+
+        counters.forEach(counter => {
+            const animate = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const inc = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + inc);
+                    setTimeout(animate, 20);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            setTimeout(animate, 600);
+        });
+    });
+
+    // Modal Interaction Handlers
+    function openDashModal(type) {
+        if (!window.dashData && (type === 'weather' || type === 'soil' || type === 'rain')) return;
+
+        const modalOverlay = document.getElementById('dashModalOverlay');
+        const modalBody = document.getElementById('dashModalBody');
+        let htmlContent = '';
+
+        if (type === 'weather') {
+            const cityName = window.dashData.city_name || "Local area";
+            htmlContent = `
+                <div style="font-size: 1.1rem; color: var(--text-main); line-height: 1.8;">
+                    <div style="margin-bottom: 1.5rem; text-align: center;">
+                        <i class="ph-map-pin text-primary" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
+                        <span style="font-weight: 600; font-size: 1.3rem;">${cityName}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.5rem; border-radius: 12px;">
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="temp_lbl">Temperature</span><br>
+                            <span style="font-size: 1.4rem; font-weight: 700;">${window.dashData.temperature}°C</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="feels_like_lbl">Feels Like</span><br>
+                            <span style="font-size: 1.4rem; font-weight: 700;">${window.dashData.feels_like}°C</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="humidity_lbl">Humidity</span><br>
+                            <span style="font-size: 1.4rem; font-weight: 700;">${window.dashData.humidity}%</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;" data-i18n="wind_speed_lbl">Wind Speed</span><br>
+                            <span style="font-size: 1.4rem; font-weight: 700;">${window.dashData.wind_speed} km/h</span>
+                        </div>
+                    </div>
+                    <p style="margin-top: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="ph-info"></i> Information updated real-time using geographical coordinates.
+                    </p>
+                </div>
+            `;
+        } else if (type === 'soil') {
+            const sType = window.dashData.soil_type;
+            const sTypeKey = 'crop_' + sType.split(' ')[0].toLowerCase().replace(' ', '_');
+            const sInsightKey = 'soil_' + window.dashData.soil_insight.toLowerCase().replace(' ', '_');
+
+            htmlContent = `
+                <div style="font-size: 1.1rem; color: var(--text-main); line-height: 1.8;">
+                    <div style="padding: 1.5rem; border-radius: 12px; background: rgba(245, 158, 11, 0.1); margin-bottom: 1.5rem; border-left: 4px solid #f59e0b;">
+                        <h4 style="margin: 0 0 0.5rem 0; color: #b45309;"><i class="ph-drop-half"></i> <span data-i18n="soil_insights">Soil Condition</span></h4>
+                        <strong style="font-size: 1.2rem;" data-i18n="${sInsightKey}">${window.dashData.soil_insight}</strong>
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: #b45309;">
+                            Optimal moisture levels strongly depend on your crop. Ensure irrigation reflects current forecasts.
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; border: 1px solid rgba(0,0,0,0.05); border-radius: 8px;">
+                            <span style="color: var(--text-muted);"><i class="ph-mountains text-primary"></i> <span data-i18n="est_soil_lbl">Soil Profile</span></span>
+                            <strong data-i18n="${sTypeKey}">${sType}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 1rem; border: 1px solid rgba(0,0,0,0.05); border-radius: 8px;">
+                            <span style="color: var(--text-muted);"><i class="ph-flask text-primary"></i> <span data-i18n="ph_range_lbl">pH Estimate</span></span>
+                            <strong>${window.dashData.ph_range}</strong>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (type === 'rain') {
+            const horizon = window.dashData.forecast_time === 'today' ? "later today" : "tomorrow";
+            const horizonKey = window.dashData.forecast_time === 'today' ? "horizon_today" : "horizon_tomorrow";
+            htmlContent = `
+                <div style="font-size: 1.1rem; color: var(--text-main); line-height: 1.8; text-align: center;">
+                    <i class="ph-cloud-rain" style="font-size: 3rem; color: #0ea5e9; margin-bottom: 1rem; display: block;"></i>
+                    <h3 style="margin-bottom: 1.5rem;">There is a <strong style="color: #0ea5e9; font-size: 1.8rem;">${window.dashData.rain_chance}%</strong> chance of rain <span data-i18n="${horizonKey}">${horizon}</span>.</h3>
+                    
+                    <div style="background: rgba(14, 165, 233, 0.1); padding: 1.5rem; border-radius: 12px; display: inline-block;">
+                        <span style="display: block; font-size: 0.9rem; color: var(--text-muted);" data-i18n="expected_rain_lbl">Expected Accumulation</span>
+                        <span style="display: block; font-size: 2rem; font-weight: 800; color: #0369a1;">${window.dashData.rain_amount} mm</span>
+                    </div>
+                </div>
+            `;
+        } else if (type === 'healthy') {
+            htmlContent = `
+                <div style="font-size: 1.1rem; color: var(--text-main); line-height: 1.8;">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 100px; height: 100px; border-radius: 50%; border: 6px solid #10b981; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
+                            <span style="font-size: 2rem; font-weight: 800; color: #10b981;">{{ healthy_percentage }}%</span>
+                        </div>
+                        <p style="color: var(--text-muted);">of your diagnosed crops have been categorized as fully healthy.</p>
+                    </div>
+                    <ul style="list-style: none; padding: 0; margin: 0; background: rgba(0,0,0,0.02); border-radius: 12px; padding: 1.5rem;">
+                        <li style="display: flex; justify-content: space-between; padding-bottom: 0.8rem; margin-bottom: 0.8rem; border-bottom: 1px dashed rgba(0,0,0,0.1);">
+                            <span>Total Healthy Leaves Scanned</span>
+                            <strong>{{ healthy_scans }}</strong>
+                        </li>
+                        <li style="display: flex; justify-content: space-between;">
+                            <span>Lifetime Scans Processed</span>
+                            <strong>{{ total_scans }}</strong>
+                        </li>
+                    </ul>
+                </div>
+            `;
+        } else if (type === 'scans') {
+            htmlContent = `
+                <div style="font-size: 1.1rem; color: var(--text-main); line-height: 1.8;">
+                    <h3 style="margin-top: 0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;"><i class="ph-activity text-primary"></i> Scanning Analytics</h3>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                        <div style="background: rgba(139, 92, 246, 0.1); padding: 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 0.9rem; color: #6d28d9; font-weight: 600; text-transform: uppercase;">Total Historical Scans</span>
+                            </div>
+                            <span style="font-size: 2rem; font-weight: 800; color: #6d28d9;">{{ total_scans }}</span>
+                        </div>
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 1.5rem; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-size: 0.9rem; color: #b91c1c; font-weight: 600; text-transform: uppercase;">Diseases Detected</span>
+                            </div>
+                            <span style="font-size: 2rem; font-weight: 800; color: #b91c1c;">{{ disease_scans }}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        modalBody.innerHTML = htmlContent;
+        modalOverlay.classList.add('active');
+        if (typeof applyTranslations === 'function') { applyTranslations(); }
+    }
+
+    function closeDashModal() {
+        document.getElementById('dashModalOverlay').classList.remove('active');
+    }
+
+    // Close on click outside
+    document.getElementById('dashModalOverlay').addEventListener('click', function (e) {
+        if (e.target === this) closeDashModal();
+    });
+</script>
+{% endblock %}

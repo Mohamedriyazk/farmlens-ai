@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmLens AI - Smart Farming Platform</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Load Phosphor icons for elegant UI symbols -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+</head>
+
+<body>
+
+    <!-- Left Sidebar Menu -->
+    <aside class="sidebar">
+        <a href="{{ url_for('dashboard') }}" class="brand" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; padding: 1.5rem 2rem;">
+            <div style="background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);">
+                <i class="ph-leaf-fill" style="color: white; font-size: 1.5rem;"></i>
+            </div>
+            <span style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">
+                {% set uname = current_user.username.strip() if current_user and current_user.username else '' %}
+                {% if uname %}
+                    {{ uname }}
+                {% else %}
+                    <span data-i18n="hero_title">FarmLens AI</span>
+                {% endif %}
+            </span>
+        </a>
+
+        <nav class="nav-links">
+            <a href="{{ url_for('dashboard') }}"
+                class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i class="ph-squares-four nav-icon"></i>
+                <span data-i18n="nav_dashboard">Dashboard</span>
+            </a>
+            <a href="{{ url_for('crop_recommendation') }}"
+                class="nav-item {% if request.endpoint == 'crop_recommendation' %}active{% endif %}">
+                <i class="ph-tree nav-icon"></i>
+                <span data-i18n="dash_crop">Crop Advisor</span>
+            </a>
+            <a href="{{ url_for('disease_prediction') }}"
+                class="nav-item {% if request.endpoint == 'disease_prediction' %}active{% endif %}">
+                <i class="ph-magnifying-glass-plus nav-icon"></i>
+                <span data-i18n="dash_disease">Disease Scan</span>
+            </a>
+            <a href="{{ url_for('history') }}" class="nav-item {% if request.endpoint == 'history' %}active{% endif %}">
+                <i class="ph-clock-counter-clockwise nav-icon"></i>
+                <span data-i18n="dash_history">History</span>
+            </a>
+        </nav>
+
+        <div class="bottom-nav">
+            <a href="{{ url_for('profile') }}" class="nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+                <i class="ph-user-circle-gear nav-icon"></i>
+                <span data-i18n="nav_profile">Profile Settings</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area Container -->
+    <main class="main-wrapper">
+        <!-- Top Sticky Header -->
+        <header class="top-header">
+            <button id="langToggleBtn" class="btn btn-outline" style="padding: 0.5rem 1rem;"
+                onclick="switchLanguage()">தமிழ்</button>
+        </header>
+
+        <!-- Dynamic Page Content -->
+        <div class="content-area">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                <i class="ph-info"></i> {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Multilingual Dictionary -->
+    <script src="{{ url_for('static', filename='js/dictionary.js') }}?v=1.2"></script>
+</body>
+
+</html>

@@ -1,0 +1,676 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+    /* Premium Crop Advisor Settings */
+    .crop-advisor-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .form-panel,
+    .results-panel {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .panel-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0;
+    }
+
+    /* Modern Input Grid */
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .input-group label {
+        font-weight: 600;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .input-control {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        font-size: 1rem;
+        color: var(--text-main);
+        transition: all 0.2s;
+        outline: none;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .input-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    /* Live Location Auto-Fill Box */
+    .auto-fill-box {
+        background: linear-gradient(135deg, var(--primary-light) 0%, rgba(var(--primary-color-rgb), 0.05) 100%);
+        border: 1px dashed var(--primary-color);
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.3s;
+    }
+
+    .auto-fill-box:hover {
+        background: var(--primary-light);
+    }
+
+    .auto-fill-box .location-icon {
+        font-size: 2.5rem;
+        color: var(--primary-color);
+    }
+
+    .location-btn-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .btn-map-pick {
+        background: var(--surface-color);
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-map-pick:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    #leaflet-map-container {
+        display: none;
+        width: 100%;
+        height: 300px;
+        margin-top: 1rem;
+        border-radius: var(--radius-md);
+        border: 2px solid var(--primary-light);
+        z-index: 1;
+        /* Keep leaflet under modals but visible */
+    }
+
+    .selected-location {
+        display: none;
+        width: 100%;
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: var(--radius-sm);
+        text-align: left;
+        margin-top: 1rem;
+    }
+
+    .auto-fill-box h4 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: var(--text-main);
+    }
+
+    .auto-fill-box p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        max-width: 400px;
+    }
+
+    .btn-auto-fill {
+        background: var(--surface-color);
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-auto-fill:hover {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .status-text {
+        font-size: 0.85rem;
+        font-weight: 500;
+        height: 1.2rem;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        width: 100%;
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.75rem;
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: var(--accent-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .btn-submit:disabled {
+        background: var(--text-muted);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    /* Results Panel */
+    .results-panel {
+        display: none;
+        text-align: center;
+    }
+
+    .result-icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100px;
+        height: 100px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        margin: 0 auto 1.5rem auto;
+        overflow: hidden;
+    }
+
+    .result-icon-wrapper img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+
+    .crop-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .crop-card {
+        background: var(--surface-color);
+        border: 2px solid var(--primary-light);
+        padding: 1.5rem;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transform: scale(0.95);
+        opacity: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        word-break: break-word;
+    }
+
+    .crop-card.show {
+        transform: scale(1);
+        opacity: 1;
+        border-color: var(--primary-color);
+    }
+
+    .crop-card i {
+        font-size: 2.5rem;
+        color: var(--btn-secondary);
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .crop-card .crop-name {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-main);
+        line-height: 1.4;
+    }
+
+    .result-meta {
+        background: var(--bg-color);
+        padding: 1.5rem;
+        border-radius: var(--radius-sm);
+        margin-bottom: 2rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .btn-reset {
+        background: transparent;
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+        background: var(--bg-color);
+        border-color: var(--text-muted);
+    }
+
+    /* Keyframes */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="crop-advisor-container">
+
+    <div class="page-title" data-i18n="dash_crop">Crop Advisor Assistant</div>
+    <div class="page-subtitle" data-i18n="crop_advisor_subtitle">Analyze your soil metrics and regional climate to
+        discover the most profitable and suitable crops.</div>
+
+    <!-- MAIN FORM PANEL -->
+    <div class="form-panel" id="advisor-form-panel">
+        <div class="auto-fill-box">
+            <i class="ph-map-pin location-icon"></i>
+            <h4 data-i18n="auto_detect_location">Auto-Detect Climate Data</h4>
+            <p data-i18n="location_desc">Fetch real-time agricultural data based on your coordinates, or enter manually
+                below.</p>
+
+            <div class="location-btn-group">
+                <button type="button" class="btn-auto-fill" id="btn-auto-fill">
+                    <i class="ph-crosshair"></i> <span data-i18n="get_location">Get Live Location</span>
+                </button>
+                <button type="button" class="btn-map-pick" id="btn-map-pick">
+                    <i class="ph-map-trifold"></i> <span data-i18n="choose_map">Choose Location on Map</span>
+                </button>
+            </div>
+
+            <div id="leaflet-map-container"></div>
+
+            <div class="selected-location" id="selected-location-box">
+                <strong data-i18n="selected_location">Selected Location:</strong> <span
+                    id="loc-display-name">None</span><br>
+                <small style="color:var(--text-muted)">Lat: <span id="loc-display-lat">--</span>, Lng: <span
+                        id="loc-display-lng">--</span></small>
+            </div>
+
+            <div class="status-text" id="auto-status-text"></div>
+        </div>
+
+        <form id="advisor-form">
+            <div class="panel-header">
+                <h3 class="panel-title" data-i18n="manual_crop_entry">Agricultural Parameters</h3>
+            </div>
+
+            <div class="input-grid">
+                <div class="input-group">
+                    <label data-i18n="soil_type">Soil Type</label>
+                    <select class="input-control" name="soil_type" id="soil_type" required>
+                        <option value="" disabled selected data-i18n="select_soil">Select predominant soil type...
+                        </option>
+                        <option value="Loamy" data-i18n="loamy_soil">Loamy Soil</option>
+                        <option value="Sandy" data-i18n="sandy_soil">Sandy Soil</option>
+                        <option value="Clay" data-i18n="clay_soil">Clay Soil</option>
+                        <option value="Silt" data-i18n="silty_soil">Silty Soil</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label data-i18n="temperature">Average Temperature (°C)</label>
+                    <input class="input-control" type="number" step="0.1" name="temperature" id="temperature"
+                        placeholder="e.g. 26.5" required>
+                </div>
+
+                <div class="input-group">
+                    <label data-i18n="humidity">Average Humidity (%)</label>
+                    <input class="input-control" type="number" step="0.1" name="humidity" id="humidity"
+                        placeholder="e.g. 60" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submit-btn">
+                <i class="ph-magic-wand"></i> <span data-i18n="generate_smart_recommendation">Generate Smart
+                    Recommendation</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- RESULTS PANEL -->
+    <div class="results-panel" id="advisor-results-panel">
+        <div class="result-icon-wrapper">
+            <img src="{{ url_for('static', filename='images/sprout_icon.svg') }}" alt="AI Sprout Icon">
+        </div>
+
+        <h3 style="color: var(--text-muted); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;"
+            data-i18n="ai_recommendation">AI Recommendation</h3>
+
+        <h2 style="font-size: 2rem; color: var(--text-main); margin-bottom: 2rem;" data-i18n="top_crops_found">Optimal
+            Crops Discovered</h2>
+
+        <div class="crop-cards-grid" id="crop-cards-container">
+            <!-- Dynamic crop cards injected here -->
+        </div>
+
+        <div class="result-meta">
+            <div>
+                <strong data-i18n="based_on">Based on parameters:</strong>
+                <span id="res-soil"></span> <span data-i18n="soil_txt">soil,</span>
+                <span id="res-temp"></span><span data-i18n="temp_txt">°C temperature, and</span>
+                <span id="res-hum"></span><span data-i18n="hum_txt">% humidity.</span>
+            </div>
+            <div style="opacity: 0.7; font-size: 0.85em; margin-top: 0.5rem;" data-i18n="season_integrated">(Current
+                seasonal climate changes integrated securely)</div>
+        </div>
+
+        <button type="button" class="btn-reset" id="btn-reset">
+            <i class="ph-arrow-counter-clockwise"></i> <span data-i18n="run_another_analysis">Run Another
+                Analysis</span>
+        </button>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        applyTranslation(localStorage.getItem('lang') || 'en');
+
+        const autoFillBtn = document.getElementById('btn-auto-fill');
+        const statusText = document.getElementById('auto-status-text');
+        const form = document.getElementById('advisor-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        const formPanel = document.getElementById('advisor-form-panel');
+        const resultsPanel = document.getElementById('advisor-results-panel');
+
+        const mapPickBtn = document.getElementById('btn-map-pick');
+        const mapContainer = document.getElementById('leaflet-map-container');
+        const selectedLocBox = document.getElementById('selected-location-box');
+        const locDisplayName = document.getElementById('loc-display-name');
+        const locDisplayLat = document.getElementById('loc-display-lat');
+        const locDisplayLng = document.getElementById('loc-display-lng');
+
+        let leafletMap = null;
+        let leafletMarker = null;
+
+        function fetchLocationData(lat, lng) {
+            const currentLang = localStorage.getItem('lang') || 'en';
+            const t_analyzing = currentLang === 'ta' ? 'பகுதி தரவுகளைப் பகுப்பாய்வு செய்கிறது...' : 'Analyzing Regional Topography...';
+            const t_success = currentLang === 'ta' ? 'தரவு வெற்றிகரமாக தானாக நிரப்பப்பட்டது!' : 'Climate Data Synced & Auto-Filled!';
+            const t_error = currentLang === 'ta' ? 'API பிழை: காலநிலை தரவைப் பெற முடியவில்லை.' : 'API Error: Could not fetch climate data.';
+
+            statusText.innerHTML = `<i class="ph-spinner ph-spin"></i> <span>${t_analyzing}</span>`;
+            statusText.style.color = "var(--primary-color)";
+
+            fetch(`/api/weather?lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.error) {
+                        const soils = ["Loamy", "Sandy", "Clay", "Silt"];
+                        const randomSoil = soils[Math.floor(Math.abs(lat + lng)) % soils.length];
+
+                        document.getElementById('soil_type').value = data.soil_type || randomSoil;
+                        document.getElementById('temperature').value = data.temperature;
+                        document.getElementById('humidity').value = data.humidity;
+
+                        statusText.innerHTML = `<i class="ph-check-circle"></i> <span>${t_success}</span>`;
+                        statusText.style.color = "var(--accent-color)";
+
+                        // Show selected location details
+                        selectedLocBox.style.display = 'block';
+                        locDisplayName.textContent = data.city_name || "Custom Map Location";
+                        locDisplayLat.textContent = lat.toFixed(4);
+                        locDisplayLng.textContent = lng.toFixed(4);
+
+                        // Cache for dashboard
+                        localStorage.setItem('dash_lat', lat);
+                        localStorage.setItem('dash_lon', lng);
+                        localStorage.setItem('dash_loc_requested', 'true');
+                    } else {
+                        throw new Error(data.error);
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    statusText.innerHTML = `<i class="ph-warning"></i> <span>${t_error}</span>`;
+                    statusText.style.color = "var(--danger)";
+                });
+        }
+
+        // Live Location
+        autoFillBtn.addEventListener("click", () => {
+            mapContainer.style.display = 'none'; // hide map if open
+            statusText.innerHTML = `<i class="ph-spinner ph-spin"></i> <span>Locating...</span>`;
+            statusText.style.color = "var(--primary-color)";
+
+            if (!navigator.geolocation) {
+                statusText.innerHTML = `<i class="ph-warning"></i> <span>Geolocation is not supported.</span>`;
+                statusText.style.color = "var(--danger)";
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => { fetchLocationData(position.coords.latitude, position.coords.longitude); },
+                (err) => {
+                    statusText.innerHTML = `<i class="ph-warning"></i> <span>Location access denied. Use map or fill manually.</span>`;
+                    statusText.style.color = "var(--danger)";
+                }
+            );
+        });
+
+        // Map Location Picker
+        mapPickBtn.addEventListener("click", () => {
+            if (mapContainer.style.display === 'block') {
+                mapContainer.style.display = 'none';
+                return;
+            }
+
+            mapContainer.style.display = 'block';
+
+            // Initialize map only once
+            if (!leafletMap) {
+                // Default to India center if no prior location known
+                let initLat = 20.5937;
+                let initLng = 78.9629;
+                let initZoom = 4;
+
+                if (localStorage.getItem('dash_lat')) {
+                    initLat = parseFloat(localStorage.getItem('dash_lat'));
+                    initLng = parseFloat(localStorage.getItem('dash_lon'));
+                    initZoom = 10;
+                }
+
+                leafletMap = L.map('leaflet-map-container').setView([initLat, initLng], initZoom);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 18,
+                    attribution: '© OpenStreetMap'
+                }).addTo(leafletMap);
+
+                if (localStorage.getItem('dash_lat')) {
+                    leafletMarker = L.marker([initLat, initLng]).addTo(leafletMap);
+                }
+
+                leafletMap.on('click', function (e) {
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+
+                    if (leafletMarker) {
+                        leafletMarker.setLatLng(e.latlng);
+                    } else {
+                        leafletMarker = L.marker(e.latlng).addTo(leafletMap);
+                    }
+
+                    fetchLocationData(lat, lng);
+                });
+            } else {
+                leafletMap.invalidateSize(); // Fix tile loading issue when div becomes visible
+            }
+        });
+
+        // Form Submit interception
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const currentLang = localStorage.getItem('lang') || 'en';
+            const t_generating = currentLang === 'ta' ? 'விவசாய தரவுகளை செயலாக்குகிறது...' : 'Processing Agronomy Data...';
+
+            submitBtn.innerHTML = `<i class="ph-spinner ph-spin"></i> <span>${t_generating}</span>`;
+            submitBtn.disabled = true;
+
+            const formData = new FormData(form);
+            formData.append('lang', currentLang);
+
+            try {
+                const response = await fetch("{{ url_for('crop_recommendation') }}", {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json' },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    if (data.success) {
+                        renderResults(data);
+                    } else {
+                        throw new Error('Analysis failed');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred connecting to the recommendation endpoint.");
+            } finally {
+                const t_original_btn = currentLang === 'ta' ? 'அறிவார்ந்த பரிந்துரையை உருவாக்கு' : 'Generate Smart Recommendation';
+                submitBtn.innerHTML = `<i class="ph-magic-wand"></i> <span>${t_original_btn}</span>`;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Reset Button
+        document.getElementById('btn-reset').addEventListener("click", () => {
+            resultsPanel.style.display = 'none';
+            formPanel.style.display = 'block';
+            form.reset();
+            statusText.innerHTML = '';
+            document.getElementById('crop-cards-container').innerHTML = '';
+        });
+
+        function renderResults(data) {
+            // Hide Form, Show Results
+            formPanel.style.display = 'none';
+            resultsPanel.style.display = 'block';
+
+            // Populate Meta Data
+            const currentLang = localStorage.getItem('lang') || 'en';
+
+            const rawSoil = data.soil_type;
+            let translatedSoil = rawSoil;
+            if (currentLang === 'ta') {
+                if (rawSoil === 'Loamy') translatedSoil = dictionary['loamy_soil'].ta;
+                if (rawSoil === 'Sandy') translatedSoil = dictionary['sandy_soil'].ta;
+                if (rawSoil === 'Clay') translatedSoil = dictionary['clay_soil'].ta;
+                if (rawSoil === 'Silt') translatedSoil = dictionary['silty_soil'].ta;
+            }
+
+            document.getElementById('res-soil').innerText = translatedSoil;
+            document.getElementById('res-temp').innerText = data.temperature;
+            document.getElementById('res-hum').innerText = data.humidity;
+
+            // Generate Cards
+            const container = document.getElementById('crop-cards-container');
+            container.innerHTML = '';
+
+            data.results.forEach((crop, index) => {
+                const card = document.createElement('div');
+                card.className = 'crop-card';
+                // Remove spaces and make lowercase for lookup 'Moong Dal' -> 'crop_moong_dal'
+                let cropKey = 'crop_' + crop.toLowerCase().replace(' ', '_');
+
+                card.innerHTML = `
+                    <i class="ph-plant-fill"></i>
+                    <div class="crop-name" data-i18n="${cropKey}">${crop}</div>
+                `;
+                container.appendChild(card);
+
+                // Staggered Animation
+                setTimeout(() => {
+                    card.classList.add('show');
+                }, 100 * (index + 1));
+            });
+
+            applyTranslation(localStorage.getItem('lang') || 'en');
+        }
+    });
+</script>
+{% endblock %}

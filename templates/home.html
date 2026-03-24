@@ -1,0 +1,169 @@
+{% extends 'layout.html' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero-section {
+        position: relative;
+        padding: 6rem 2rem;
+        background: linear-gradient(135deg, rgba(15, 76, 58, 0.95), rgba(34, 197, 94, 0.8)),
+            url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+        border-radius: var(--border-radius-xl);
+        color: var(--clr-text-inverse);
+        text-align: center;
+        overflow: hidden;
+        margin-bottom: 4rem;
+        box-shadow: var(--shadow-xl);
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 10;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.1;
+        color: var(--clr-text-inverse);
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 2.5rem;
+        font-weight: 400;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-hero {
+        padding: 1rem 2rem;
+        font-size: 1.125rem;
+        border-radius: var(--border-radius-full);
+    }
+
+    /* Feature Cards */
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 4rem;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .feature-icon {
+        width: 64px;
+        height: 64px;
+        background-color: var(--clr-secondary-transparent);
+        color: var(--clr-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        color: var(--clr-primary);
+    }
+
+    .feature-description {
+        color: var(--clr-text-muted);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+
+    <!-- Navbar for Landing Page -->
+    <nav style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0 2rem 0;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <img src="{{ url_for('static', filename='images/farmlens-logo.svg') }}" alt="FarmLens AI Logo"
+                style="height: 36px; width: auto; object-fit: contain;">
+            <div class="sidebar-brand-text" style="font-size: 1.5rem;">FarmLens AI</div>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('login') }}" class="btn" style="color: var(--clr-text-main); font-weight: 600;">Log
+                In</a>
+            <a href="{{ url_for('signup') }}" class="btn btn-primary"
+                style="border-radius: var(--border-radius-full);">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Intelligent Farming For A Better Tomorrow.</h1>
+            <p class="hero-subtitle">Leverage our state-of-the-art AI to detect plant diseases in seconds, get
+                hyper-local crop recommendations, and maximize your yield effortlessly.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('signup') }}" class="btn btn-secondary btn-hero">Start Free Trial</a>
+                <a href="#features" class="btn btn-hero"
+                    style="background-color: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px);">Explore
+                    Features</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <h2 style="font-size: 2.25rem; color: var(--clr-primary); margin-bottom: 1rem;">End-to-End Smart Agriculture
+            </h2>
+            <p style="color: var(--clr-text-muted); max-width: 600px; margin: 0 auto;">Everything you need to monitor,
+                protect, and grow your crops, all in one powerful SaaS platform.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-microscope"></i>
+                </div>
+                <h3 class="feature-title">AI Disease Scanning</h3>
+                <p class="feature-description">Upload a photo of any leaf. Our Deep Learning model identifies diseases
+                    with high accuracy and prescribes instant treatments.</p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <h3 class="feature-title">Smart Crop Advisor</h3>
+                <p class="feature-description">We analyze local weather patterns and soil metrics to recommend the
+                    absolute best crops for your specific farm location.</p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Yield Analytics</h3>
+                <p class="feature-description">Track your farm's health over time. Keep a clean history of all scans and
+                    recommendations right on your premium dashboard.</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+{% endblock %}

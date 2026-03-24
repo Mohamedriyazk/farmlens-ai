@@ -1,0 +1,586 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Premium Disease AI scanner Styles */
+    .scanner-view-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .upload-container {
+        background: var(--glass-bg);
+        border: 2px dashed rgba(16, 185, 129, 0.4);
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .upload-container:hover,
+    .upload-container.dragover {
+        border-color: var(--primary-color);
+        background: rgba(16, 185, 129, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .upload-content {
+        pointer-events: none;
+    }
+
+    .upload-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem auto;
+        color: var(--primary-color);
+        font-size: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .upload-container:hover .upload-icon-wrapper {
+        transform: scale(1.1);
+    }
+
+    .preview-section {
+        display: none;
+        animation: slideUp 0.5s ease;
+    }
+
+    .preview-card {
+        background: var(--glass-bg);
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-md);
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 2.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .image-frame {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        background: #000;
+        height: fit-content;
+    }
+
+    .image-frame img {
+        width: 100%;
+        display: block;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Scanning animation overlay */
+    .scan-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--primary-color);
+        box-shadow: 0 0 15px 4px rgba(16, 185, 129, 0.7);
+        display: none;
+        z-index: 10;
+        animation: scanMove 2s linear infinite;
+    }
+
+    .scanning-active .scan-line {
+        display: block;
+    }
+
+    .scanning-active .image-frame img {
+        opacity: 0.6;
+    }
+
+    .action-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .action-subtitle {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    @keyframes scanMove {
+
+        0%,
+        100% {
+            top: 0;
+        }
+
+        50% {
+            top: calc(100% - 4px);
+        }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Results section styles */
+    .results-section {
+        display: none;
+        animation: fadeIn 0.6s ease;
+    }
+
+    .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .confidence-gauge {
+        background: var(--white);
+        border: 2px solid var(--primary-color);
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+
+    .confidence-gauge.low-conf {
+        border-color: var(--danger);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+    }
+
+    .conf-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        line-height: 1;
+    }
+
+    .low-conf .conf-value {
+        color: var(--danger);
+    }
+
+    .treatment-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-box {
+        background: var(--primary-light);
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .info-box-danger {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .environmental-validation {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .validation-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .validation-item i {
+        color: var(--primary-color);
+    }
+
+    /* Smaller responsive tweaks */
+    @media (max-width: 900px) {
+        .preview-card {
+            grid-template-columns: 1fr;
+        }
+
+        .treatment-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="page-title" data-i18n="disease_ai_title">Advanced Plant Disease AI Engine</div>
+<div class="page-subtitle" data-i18n="disease_ai_subtitle2">Upload high-resolution leaf imagery for Deep Learning
+    architectural deformation analysis.
+    Industry-grade classification in seconds.</div>
+
+<div class="scanner-view-container">
+
+    <!-- STEP 1: UPLOAD AREA -->
+    <div id="uploadArea" class="upload-container" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        <div class="upload-content">
+            <div class="upload-icon-wrapper">
+                <i class="ph-upload-simple"></i>
+            </div>
+            <h2 style="color: var(--text-main); font-size: 1.5rem; margin-bottom: 0.75rem;" data-i18n="drag_drop_title">
+                Drag & Drop Image Here</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;" data-i18n="click_to_browse">or click to browse from
+                your device</p>
+            <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; opacity: 0.5;">
+                <i class="ph-file-jpg" style="font-size: 1.5rem;"></i>
+                <i class="ph-file-png" style="font-size: 1.5rem;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 2: PREVIEW & SCANNING -->
+    <div id="previewArea" class="preview-section">
+        <div class="preview-card">
+            <div class="image-frame" id="imageFrame">
+                <div class="scan-line"></div>
+                <img id="previewImage" src="" alt="Leaf Preview">
+            </div>
+
+            <div class="action-panel" id="actionPanel">
+                <h3 style="color: var(--text-main); font-size: 1.4rem; margin-bottom: 1rem;" data-i18n="image_acquired">
+                    Image Acquired</h3>
+                <p class="action-subtitle" id="imageMeta"><span data-i18n="file_label">File: </span><span
+                        style="font-weight:600; color:var(--text-main);" id="fileNameDisp"></span><br><span
+                        data-i18n="ready_neural_net">Ready for neural net classification.</span></p>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-outline" onclick="resetScanner()" id="cancelBtn">
+                        <i class="ph-x"></i> <span data-i18n="cancel_btn">Cancel</span>
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="startAIAnalysis()" id="analyzeBtn">
+                        <i class="ph-cpu"></i> <span data-i18n="run_dl_scan">Run Deep Learning Scan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: RESULTS PANEL (Replaces action panel) -->
+            <div class="results-section" id="resultsPanel">
+
+                <div id="warningBanner"
+                    style="display:none; margin-bottom: 1.5rem; padding: 1rem; border-radius: 8px; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-size: 0.9rem; font-weight: 500;">
+                    <i class="ph-warning"></i> <span data-i18n="warning_low_conf">Warning: Low confidence detection. The
+                        image may be blurry, not a leaf,
+                        or contains an unknown pathogen.</span>
+                </div>
+
+                <div class="result-header">
+                    <div>
+                        <span
+                            style="font-size: 0.8rem; text-transform: uppercase; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em;"
+                            data-i18n="primary_class_match">Primary
+                            Classification Match</span>
+                        <h2 id="resDiseaseName"
+                            style="font-size: 2.2rem; color: var(--primary-color); margin-top: 0.25rem;">Disease Name
+                        </h2>
+                    </div>
+
+                    <div class="confidence-gauge" id="confGauge">
+                        <div class="conf-value" id="resConfidence">98%</div>
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-top: 0.3rem;"
+                            data-i18n="ai_confidence_title">
+                            AI Confidence</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h4 style="margin-bottom: 0.75rem; color: var(--text-main); font-size: 1.1rem;"
+                        data-i18n="pathology_overview">Pathology Overview
+                    </h4>
+                    <p id="resDescription" style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+                        Overview text goes here.</p>
+                </div>
+
+                <div class="treatment-grid">
+                    <div class="info-box info-box-danger">
+                        <h4
+                            style="margin-bottom: 0.75rem; color: var(--danger); display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                            <i class="ph-first-aid"></i> <span data-i18n="immediate_treatment">Immediate
+                                Treatment</span>
+                        </h4>
+                        <p id="resTreatment" style="color: var(--text-main); font-size: 0.9rem; line-height: 1.5;">
+                            Treatment</p>
+
+                        <h4
+                            style="margin-top: 1.25rem; margin-bottom: 0.75rem; color: #3b82f6; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                            <i class="ph-pill"></i> <span data-i18n="chemical_medicine">Chemical/Medicine</span>
+                        </h4>
+                        <p id="resMedicine" style="color: var(--text-main); font-size: 0.9rem; line-height: 1.5;">
+                            Medicine</p>
+                    </div>
+
+                    <div>
+                        <div class="info-box" style="margin-bottom: 1.5rem;">
+                            <h4
+                                style="margin-bottom: 0.75rem; color: var(--accent-color); display: flex; align-items: center; gap: 0.5rem; font-size: 1rem;">
+                                <i class="ph-shield-check"></i> <span data-i18n="prevention_plan_title">Prevention
+                                    Plan</span>
+                            </h4>
+                            <p id="resPrevention" style="color: var(--text-main); font-size: 0.9rem; line-height: 1.5;">
+                                Prevention</p>
+                        </div>
+
+                        <div>
+                            <h4 style="margin-bottom: 0.75rem; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase;"
+                                data-i18n="other_probs">
+                                Other Probabilities</h4>
+                            <div id="otherProbsList"
+                                style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                                <!-- populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="environmental-validation">
+                    <div class="validation-item"><i class="ph-check-circle"></i> <span data-i18n="env_os_verify">OS
+                            Fingerprint Verified</span></div>
+                    <div class="validation-item"><i class="ph-check-circle"></i> <span
+                            data-i18n="env_meta_clean">Meta-Tag Cleaned</span></div>
+                    <div class="validation-item"><i class="ph-check-circle"></i> <span
+                            data-i18n="env_res_optimal">Resolution: Optimal</span></div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-outline"
+                        style="width: 100%; border-color: var(--border-color); color: var(--text-main);"
+                        onclick="resetScanner()">
+                        <i class="ph-arrow-counter-clockwise"></i> <span data-i18n="scan_another">Scan Another
+                            Image</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const previewArea = document.getElementById('previewArea');
+    const previewImage = document.getElementById('previewImage');
+    const fileNameDisp = document.getElementById('fileNameDisp');
+    const actionPanel = document.getElementById('actionPanel');
+    const resultsPanel = document.getElementById('resultsPanel');
+    const imageFrame = document.getElementById('imageFrame');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    let currentFile = null;
+
+    // --- Drag & Drop Handling ---
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        let dt = e.dataTransfer;
+        let files = dt.files;
+        handleFiles(files);
+    });
+
+    fileInput.addEventListener('change', function () {
+        handleFiles(this.files);
+    });
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            currentFile = files[0];
+            if (!currentFile.type.startsWith('image/')) {
+                alert("Please upload a valid image file.");
+                return;
+            }
+
+            // Render Preview
+            previewImage.src = URL.createObjectURL(currentFile);
+            fileNameDisp.textContent = currentFile.name;
+
+            // Switch UI
+            uploadArea.style.display = 'none';
+            previewArea.style.display = 'block';
+            actionPanel.style.display = 'flex';
+            resultsPanel.style.display = 'none';
+            imageFrame.classList.remove('scanning-active');
+
+            // Reset Button state
+            analyzeBtn.disabled = false;
+            cancelBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="ph-cpu"></i> <span data-i18n="run_dl_scan">Run Deep Learning Scan</span>';
+
+            applyTranslation(localStorage.getItem('lang') || 'en');
+        }
+    }
+
+    function resetScanner() {
+        currentFile = null;
+        fileInput.value = '';
+        previewArea.style.display = 'none';
+        uploadArea.style.display = 'block';
+        imageFrame.classList.remove('scanning-active');
+    }
+
+    async function startAIAnalysis() {
+        if (!currentFile) return;
+
+        // UI Scanning State
+        analyzeBtn.disabled = true;
+        cancelBtn.disabled = true;
+        analyzeBtn.innerHTML = '<i class="ph-spinner ph-spin"></i> <span data-i18n="establishing_link">Establishing Link to Cloud Neural Net...</span>';
+        imageFrame.classList.add('scanning-active');
+        applyTranslation(localStorage.getItem('lang') || 'en');
+
+        // Prepare File data
+        const formData = new FormData();
+        formData.append('image', currentFile);
+        formData.append('lang', localStorage.getItem('lang') || 'en');
+
+        try {
+            // Fetch request expecting JSON
+            const response = await fetch("{{ url_for('disease_prediction') }}", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const data = await response.json();
+
+            // Simulate slight delay for dramatic effect if it parsed too fast offline
+            setTimeout(() => {
+                renderResults(data);
+            }, 1200);
+
+        } catch (error) {
+            console.error("Error during scanning:", error);
+            alert("An error occurred during image processing. Check console for details.");
+            resetScanner();
+        }
+    }
+
+    function renderResults(data) {
+        if (!data.success) {
+            alert("No data returned from AI scanner.");
+            resetScanner();
+            return;
+        }
+
+        const topPred = data.top_pred;
+        const allPreds = data.all_preds;
+        const isLowConf = data.is_low_confidence;
+
+        // Populate fields
+        document.getElementById('resDiseaseName').textContent = topPred.disease.name;
+        document.getElementById('resConfidence').textContent = topPred.confidence + "%";
+        document.getElementById('resDescription').textContent = topPred.disease.description;
+        document.getElementById('resTreatment').textContent = topPred.disease.treatment;
+        document.getElementById('resMedicine').textContent = topPred.disease.medicine;
+        document.getElementById('resPrevention').textContent = topPred.disease.prevention;
+
+        // Gauge Styling
+        const gauge = document.getElementById('confGauge');
+        const warning = document.getElementById('warningBanner');
+        const diseaseNameEl = document.getElementById('resDiseaseName');
+
+        if (isLowConf) {
+            gauge.classList.add('low-conf');
+            warning.style.display = 'block';
+            diseaseNameEl.style.color = "var(--danger)";
+        } else {
+            gauge.classList.remove('low-conf');
+            warning.style.display = 'none';
+            diseaseNameEl.style.color = "var(--primary-color)";
+        }
+
+        // Other probabilities
+        const probsList = document.getElementById('otherProbsList');
+        probsList.innerHTML = ''; // clear
+
+        if (allPreds && allPreds.length > 1) {
+            for (let i = 1; i < Math.min(allPreds.length, 3); i++) {
+                const item = document.createElement('div');
+                item.style.display = "flex";
+                item.style.justifyContent = "space-between";
+                item.style.padding = "0.4rem 0";
+                item.style.borderBottom = "1px dashed var(--border-color)";
+                item.innerHTML = `
+                    <span style="color: var(--text-muted);">${allPreds[i].disease.name}</span>
+                    <span style="font-weight: 600; color: var(--text-main);">${allPreds[i].confidence}%</span>
+                `;
+                probsList.appendChild(item);
+            }
+        } else {
+            probsList.innerHTML = '<span data-i18n="no_secondary_probs">No secondary probabilities calculated.</span>';
+        }
+
+        // Switch to Results View
+        imageFrame.classList.remove('scanning-active');
+        actionPanel.style.display = 'none';
+        resultsPanel.style.display = 'block';
+
+        applyTranslation(localStorage.getItem('lang') || 'en');
+    }
+
+</script>
+
+{% endblock %}

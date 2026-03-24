@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="none"></rect>
+  <!-- Background Lens/Eye Frame -->
+  <path d="M224,128a96,96,0,1,1-96-96A96,96,0,0,1,224,128Z" fill="none" stroke="#0b5c39" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"></path>
+  <path d="M188,128a60,60,0,1,1-60-60A60,60,0,0,1,188,128Z" fill="none" stroke="#2ecc71" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="16 12" stroke-width="10"></path>
+  
+  <!-- Sprout/Leaf inside -->
+  <path d="M168,104A48.06,48.06,0,0,0,88,104v48a8,8,0,0,0,8,8h32a48.06,48.06,0,0,0,40-40Z" fill="#2ecc71"></path>
+  <line x1="128" y1="160" x2="128" y2="104" fill="none" stroke="#0b5c39" stroke-linecap="round" stroke-linejoin="round" stroke-width="10"></line>
+  
+  <!-- Digital Lens Core Accent -->
+  <circle cx="128" cy="128" r="16" fill="#ffffff" stroke="#0b5c39" stroke-width="6"></circle>
+  <circle cx="128" cy="128" r="6" fill="#2ecc71"></circle>
+</svg>
