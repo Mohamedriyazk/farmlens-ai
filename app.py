@@ -284,7 +284,7 @@ def init_db():
     # Default Dummy User for full-screen seamless access
     cursor.execute("SELECT id FROM users WHERE id = 1")
     if not cursor.fetchone():
-        cursor.execute("INSERT INTO users (id, username, email) VALUES (1, '', 'farmer@example.com')")
+        cursor.execute("INSERT INTO users (id, username, email, phone, location, farm_size, avatar) VALUES (1, 'Riyaz', 'kmohmaed.riyaz04@gmail.com', '', 'Latitude: 10.9266, Longitude: 76.9243', '23', 'ph-drop')")
     
     # Crop History
     cursor.execute('''
