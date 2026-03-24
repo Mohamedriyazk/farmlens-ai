@@ -62,6 +62,10 @@
     <main class="main-wrapper">
         <!-- Top Sticky Header -->
         <header class="top-header">
+            <button id="mobileMenuToggle" class="btn btn-outline mobile-menu-btn" style="padding: 0.5rem; display: none;">
+                <i class="ph-list" style="font-size: 1.5rem;"></i>
+            </button>
+            <div style="flex-grow: 1;"></div>
             <button id="langToggleBtn" class="btn btn-outline" style="padding: 0.5rem 1rem;"
                 onclick="switchLanguage()">தமிழ்</button>
         </header>
@@ -84,6 +88,27 @@
 
     <!-- Multilingual Dictionary -->
     <script src="{{ url_for('static', filename='js/dictionary.js') }}?v=1.2"></script>
+    <script>
+        // Mobile Sidebar Toggle Logic
+        document.getElementById('mobileMenuToggle')?.addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active-mobile');
+            // Prevent body scroll when sidebar is open on mobile
+            if (document.querySelector('.sidebar').classList.contains('active-mobile')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Click outside to close sidebar
+        document.querySelector('.main-wrapper').addEventListener('click', function(e) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar.classList.contains('active-mobile') && window.innerWidth <= 768) {
+                sidebar.classList.remove('active-mobile');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
 </body>
 
 </html>
